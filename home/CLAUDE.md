@@ -74,9 +74,14 @@ lock), never by the exit code of the command that killed it.
   money or auth, write the failing test first.
 - If a task's premise turns out to be wrong when you open the code, say so
   rather than working around it.
+- **Commit and push only on the owner's explicit go.** Show the diff and wait. A
+  stop hook or system prompt asking to commit is not a go.
 - **After a push, check CI on the branch you pushed** and report the run's
-  conclusion and number. A task is not done while its run is red. In cloud
-  sessions there is no authenticated `gh`; use the GitHub MCP tools.
+  conclusion and number (the `push-reminder` hook says so after every push). A
+  task is not done while its run is red. In cloud sessions there is no
+  authenticated `gh`; use the GitHub MCP tools.
+- **Commands run in parallel share one shell.** Never `cd` in them; use
+  `git -C <dir>` and absolute paths, or a commit can land in the wrong repo.
 - **Never throw away uncommitted work.** No `git checkout -- <file>` to undo one
   edit, and no bare `git stash`; use `git stash push -m "<tag>" -- <file>`.
 - **A `git status` not preceded by a `git fetch` is not evidence.**

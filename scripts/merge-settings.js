@@ -5,6 +5,8 @@
  *
  *   node scripts/merge-settings.js <settings.json> <event> <hook-command> [<event> <hook-command> ...]
  *
+ * An event may carry a tool matcher after a colon: `PostToolUse:Bash`.
+ *
  * Idempotent: each of our entries is found by the script name it runs and
  * replaced in place, so a second install never adds a second copy. Every other
  * key, and every other hook on every event, is left as it was. A file that does
@@ -19,13 +21,14 @@ const path = require('node:path');
 
 // The script each of our hooks runs, which is how an install finds its own
 // entry again. Commands not naming one of these are someone else's.
-const MARKERS = ['prompt-reminder.js', 'self-update.sh'];
+const MARKERS = ['prompt-reminder.js', 'self-update.sh', 'push-reminder.js'];
 
 function markerOf(command) {
     return MARKERS.find((m) => String(command || '').includes(m));
 }
 
-function merge(settings, event, command, timeout = 10) {
+function merge(settings, eventSpec, command, timeout = 10) {
+    const [event, matcher] = String(eventSpec).split(':');
     const out = settings && typeof settings === 'object' ? settings : {};
     out.hooks = out.hooks && typeof out.hooks === 'object' ? out.hooks : {};
     const marker = markerOf(command);
@@ -33,7 +36,8 @@ function merge(settings, event, command, timeout = 10) {
     const entries = Array.isArray(out.hooks[event]) ? out.hooks[event] : [];
     const isOurs = (e) => Array.isArray(e && e.hooks) && e.hooks.some((h) => String(h.command || '').includes(marker));
     const kept = entries.filter((e) => !isOurs(e));
-    out.hooks[event] = [...kept, { hooks: [{ type: 'command', command, timeout }] }];
+    const entry = { hooks: [{ type: 'command', command, timeout }] };
+    out.hooks[event] = [...kept, matcher ? { matcher, ...entry } : entry];
     return out;
 }
 

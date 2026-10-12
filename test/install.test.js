@@ -41,9 +41,15 @@ test('installs CLAUDE.md, every skill, the hook and its settings', () => {
     assert.ok(expected.length >= 11, `only ${expected.length} skills in the repo`);
     for (const s of expected) assert.ok(fs.existsSync(path.join(dest, 'skills', s, 'SKILL.md')), `${s} not installed`);
     assert.ok(fs.existsSync(path.join(dest, 'hooks', 'prompt-reminder.js')));
+    assert.ok(fs.existsSync(path.join(dest, 'hooks', 'push-reminder.js')));
     const settings = JSON.parse(fs.readFileSync(path.join(dest, 'settings.json'), 'utf8'));
     const cmds = settings.hooks.UserPromptSubmit.flatMap((e) => e.hooks.map((h) => h.command));
     assert.deepEqual(cmds, ['node "$HOME/.claude/hooks/prompt-reminder.js"']);
+    const post = settings.hooks.PostToolUse;
+    assert.deepEqual(
+        post.map((e) => [e.matcher, e.hooks.map((h) => h.command)]),
+        [['Bash', ['node "$HOME/.claude/hooks/push-reminder.js"']]]
+    );
     const start = settings.hooks.SessionStart.flatMap((e) => e.hooks.map((h) => h.command));
     // install.sh writes bash's view of the path: /d/a/... on Windows, not D:\\a\\...
     const root = spawnSync('bash', ['-c', 'cd "$1" && pwd', '_', ROOT], { encoding: 'utf8' }).stdout.trim();

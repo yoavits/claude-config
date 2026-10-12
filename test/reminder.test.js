@@ -42,7 +42,7 @@ test('every skill it names is shipped by this repo', () => {
 test('every skill the global CLAUDE.md names is shipped too', () => {
     const md = fs.readFileSync(path.join(ROOT, 'home', 'CLAUDE.md'), 'utf8');
     const NOT_SHIPPED = new Set(['using-git-worktrees', 'finishing-a-development-branch', 'subagent-driven-development']);
-    const named = [...md.matchAll(/`([a-z]+(?:-[a-z]+)+)`/g)].map((m) => m[1]).filter((n) => !NOT_SHIPPED.has(n) && !n.startsWith('prompt-'));
+    const named = [...md.matchAll(/`([a-z]+(?:-[a-z]+)+)`/g)].map((m) => m[1]).filter((n) => !NOT_SHIPPED.has(n) && !n.endsWith('-reminder'));
     const shipped = (s) =>
         fs.existsSync(path.join(ROOT, '.agents', 'skills', s, 'SKILL.md')) || fs.existsSync(path.join(ROOT, 'home', 'skills', s, 'SKILL.md'));
     for (const s of named) assert.ok(shipped(s), `${s} is named in home/CLAUDE.md but not shipped`);

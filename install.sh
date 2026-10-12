@@ -14,7 +14,8 @@
 #   skills/<name>/             every skill in .agents/skills and home/skills (replaced per skill;
 #                              skills of yours with other names are left alone)
 #   hooks/prompt-reminder.js   the UserPromptSubmit reminder
-#   settings.json              the reminder and self-update hooks merged in; every other setting kept
+#   hooks/push-reminder.js     the PostToolUse reminder to check CI after a push
+#   settings.json              the reminder, push and self-update hooks merged in; every other setting kept
 #
 # Idempotent: run it again to update. It needs node (Claude Code needs it anyway).
 set -euo pipefail
@@ -45,19 +46,23 @@ for dir in "$SRC"/.agents/skills/*/ "$SRC"/home/skills/*/; do
 done
 
 cp "$SRC/home/hooks/prompt-reminder.js" "$DEST/hooks/prompt-reminder.js"
+cp "$SRC/home/hooks/push-reminder.js" "$DEST/hooks/push-reminder.js"
 
 # $HOME stays literal in the default case so the same settings work from any
 # shell, including Git Bash on Windows, which converts the path for node.
 if [ "$DEST" = "$HOME/.claude" ]; then
   HOOK_CMD='node "$HOME/.claude/hooks/prompt-reminder.js"'
+  PUSH_CMD='node "$HOME/.claude/hooks/push-reminder.js"'
 else
   HOOK_CMD="node \"$DEST/hooks/prompt-reminder.js\""
+  PUSH_CMD="node \"$DEST/hooks/push-reminder.js\""
 fi
 # The self-update runs from this clone, wherever it is (~/claude-config locally,
 # /tmp/claude-config in the cloud), so a session pulls the repo it came from.
 UPDATE_CMD="bash \"$SRC/scripts/self-update.sh\""
 node "$SRC/scripts/merge-settings.js" "$DEST/settings.json" \
   UserPromptSubmit "$HOOK_CMD" \
+  PostToolUse:Bash "$PUSH_CMD" \
   SessionStart "$UPDATE_CMD"
 
-log "installed into $DEST: CLAUDE.md, $count skills, prompt-reminder hook"
+log "installed into $DEST: CLAUDE.md, $count skills, prompt and push reminder hooks"
