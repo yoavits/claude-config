@@ -18,7 +18,15 @@ set -u
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$SRC" 2>/dev/null || exit 0
 before="$(git rev-parse HEAD 2>/dev/null)" || exit 0
-timeout 20 git pull -q --ff-only >/dev/null 2>&1 || exit 0
+# macOS ships no timeout(1); without one the pull runs uncapped here, and the
+# hook's own timeout in settings.json still bounds it. Either way git gives up
+# on a stalled transfer and never stops to ask for credentials.
+cap=""
+if command -v timeout >/dev/null 2>&1 && timeout 1 true 2>/dev/null; then cap="timeout 20"
+elif command -v gtimeout >/dev/null 2>&1; then cap="gtimeout 20"
+fi
+GIT_TERMINAL_PROMPT=0 GIT_HTTP_LOW_SPEED_LIMIT=1000 GIT_HTTP_LOW_SPEED_TIME=10 \
+    $cap git pull -q --ff-only >/dev/null 2>&1 || exit 0
 after="$(git rev-parse HEAD 2>/dev/null)" || exit 0
 [ "$before" = "$after" ] && exit 0
 

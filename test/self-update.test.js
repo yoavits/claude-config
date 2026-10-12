@@ -20,13 +20,19 @@ const GIT_ENV = {
     GIT_COMMITTER_EMAIL: 't@example.com'
 };
 
+// The path as install.sh writes it: bash's own view of the directory, which on
+// Windows is /d/a/... rather than D:\\a\\...
+function bashPath(dir) {
+    return sh('bash', ['-c', 'cd "$1" && pwd', '_', dir]).trim();
+}
+
 function sh(cmd, args, opts = {}) {
     const r = spawnSync(cmd, args, { encoding: 'utf8', ...opts, env: { ...process.env, ...GIT_ENV, ...(opts.env || {}) } });
     assert.equal(r.status, 0, `${cmd} ${args.join(' ')}\n${r.stderr}`);
     return r.stdout;
 }
 
-test('a pushed change reaches the next session, once', () => {
+function updateRun(env = {}) {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-config-update-'));
     const origin = path.join(tmp, 'origin');
     const clone = path.join(tmp, 'clone');
@@ -47,9 +53,9 @@ test('a pushed change reaches the next session, once', () => {
 
     const settings = JSON.parse(fs.readFileSync(path.join(home, '.claude', 'settings.json'), 'utf8'));
     const start = settings.hooks.SessionStart.flatMap((e) => e.hooks.map((h) => h.command));
-    assert.deepEqual(start, [`bash "${clone}/scripts/self-update.sh"`]);
+    assert.deepEqual(start, [`bash "${bashPath(clone)}/scripts/self-update.sh"`]);
 
-    const update = () => sh('bash', [path.join(clone, 'scripts', 'self-update.sh')], { env: { HOME: home } });
+    const update = () => sh('bash', [path.join(clone, 'scripts', 'self-update.sh')], { env: { HOME: home, ...env } });
     assert.equal(update(), '', 'nothing new upstream, so nothing to say');
 
     fs.appendFileSync(path.join(origin, 'home', 'CLAUDE.md'), '\nMARKER-FROM-UPSTREAM\n');
@@ -59,6 +65,16 @@ test('a pushed change reaches the next session, once', () => {
     assert.match(said, /claude-config updated to .*upstream change/);
     assert.match(fs.readFileSync(path.join(home, '.claude', 'CLAUDE.md'), 'utf8'), /MARKER-FROM-UPSTREAM/);
     assert.equal(update(), '', 'a second start with nothing new says nothing');
+}
+
+test('a pushed change reaches the next session, once', () => updateRun());
+
+test('it updates without a timeout command, as on macOS', () => {
+    // macOS ships no timeout(1). A stub that fails the way a missing command does
+    // (127) stands in for it, ahead of the real one on PATH.
+    const bin = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-config-bin-'));
+    fs.writeFileSync(path.join(bin, 'timeout'), '#!/bin/sh\nexit 127\n', { mode: 0o755 });
+    updateRun({ PATH: bin + path.delimiter + process.env.PATH });
 });
 
 test('the self-update never fails a session', () => {

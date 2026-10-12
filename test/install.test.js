@@ -45,7 +45,9 @@ test('installs CLAUDE.md, every skill, the hook and its settings', () => {
     const cmds = settings.hooks.UserPromptSubmit.flatMap((e) => e.hooks.map((h) => h.command));
     assert.deepEqual(cmds, ['node "$HOME/.claude/hooks/prompt-reminder.js"']);
     const start = settings.hooks.SessionStart.flatMap((e) => e.hooks.map((h) => h.command));
-    assert.deepEqual(start, [`bash "${ROOT}/scripts/self-update.sh"`]);
+    // install.sh writes bash's view of the path: /d/a/... on Windows, not D:\\a\\...
+    const root = spawnSync('bash', ['-c', 'cd "$1" && pwd', '_', ROOT], { encoding: 'utf8' }).stdout.trim();
+    assert.deepEqual(start, [`bash "${root}/scripts/self-update.sh"`]);
 });
 
 test('keeps the user’s own settings, hooks, skills and CLAUDE.md', () => {
