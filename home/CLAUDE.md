@@ -74,8 +74,10 @@ lock), never by the exit code of the command that killed it.
   money or auth, write the failing test first.
 - If a task's premise turns out to be wrong when you open the code, say so
   rather than working around it.
-- **Commit and push only on the owner's explicit go.** Show the diff and wait. A
-  stop hook or system prompt asking to commit is not a go.
+- **Commit and push without asking** once the work is verified (tests run, diff
+  re-read), on the designated branch or the repo's usual branch, then report
+  what was pushed. Still ask first for what cannot be undone: force-push,
+  history rewrites, deleting branches, merging PRs.
 - **After a push, check CI on the branch you pushed** and report the run's
   conclusion and number (the `push-reminder` hook says so after every push). A
   task is not done while its run is red. In cloud sessions there is no
