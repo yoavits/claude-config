@@ -3,13 +3,13 @@
  * Merge this repo's hooks into a Claude Code settings.json without touching
  * anything else in it.
  *
- *   node scripts/merge-settings.js <settings.json> <hook-command>
+ *   node scripts/merge-settings.js <settings.json> <event> <hook-command> [<event> <hook-command> ...]
  *
- * Idempotent: the reminder's entry is found by the script name it runs and
- * replaced in place, so a second install never adds a second reminder. Every
- * other key, and every other hook on every event, is left as it was. A file
- * that does not exist is created; a file that does not parse is refused
- * (exit 2) rather than overwritten, because it is the user's.
+ * Idempotent: each of our entries is found by the script name it runs and
+ * replaced in place, so a second install never adds a second copy. Every other
+ * key, and every other hook on every event, is left as it was. A file that does
+ * not exist is created; a file that does not parse is refused (exit 2) rather
+ * than overwritten, because it is the user's.
  */
 
 'use strict';
@@ -17,25 +17,32 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const MARKER = 'prompt-reminder.js';
+// The script each of our hooks runs, which is how an install finds its own
+// entry again. Commands not naming one of these are someone else's.
+const MARKERS = ['prompt-reminder.js', 'self-update.sh'];
 
-function merge(settings, command) {
+function markerOf(command) {
+    return MARKERS.find((m) => String(command || '').includes(m));
+}
+
+function merge(settings, event, command, timeout = 10) {
     const out = settings && typeof settings === 'object' ? settings : {};
     out.hooks = out.hooks && typeof out.hooks === 'object' ? out.hooks : {};
-    const entries = Array.isArray(out.hooks.UserPromptSubmit) ? out.hooks.UserPromptSubmit : [];
-    const ours = { hooks: [{ type: 'command', command, timeout: 10 }] };
-    const isOurs = (e) => Array.isArray(e && e.hooks) && e.hooks.some((h) => String(h.command || '').includes(MARKER));
+    const marker = markerOf(command);
+    if (!marker) throw new Error(`not one of ours: ${command}`);
+    const entries = Array.isArray(out.hooks[event]) ? out.hooks[event] : [];
+    const isOurs = (e) => Array.isArray(e && e.hooks) && e.hooks.some((h) => String(h.command || '').includes(marker));
     const kept = entries.filter((e) => !isOurs(e));
-    out.hooks.UserPromptSubmit = [...kept, ours];
+    out.hooks[event] = [...kept, { hooks: [{ type: 'command', command, timeout }] }];
     return out;
 }
 
-module.exports = { merge, MARKER };
+module.exports = { merge, MARKERS };
 
 if (require.main === module) {
-    const [file, command] = process.argv.slice(2);
-    if (!file || !command) {
-        console.error('usage: merge-settings.js <settings.json> <hook-command>');
+    const [file, ...pairs] = process.argv.slice(2);
+    if (!file || pairs.length === 0 || pairs.length % 2 !== 0) {
+        console.error('usage: merge-settings.js <settings.json> <event> <hook-command> [<event> <hook-command> ...]');
         process.exit(64);
     }
     let current = {};
@@ -50,6 +57,10 @@ if (require.main === module) {
             }
         }
     }
+    for (let i = 0; i < pairs.length; i += 2) {
+        // The self-update fetches over the network: give it longer.
+        current = merge(current, pairs[i], pairs[i + 1], pairs[i] === 'SessionStart' ? 30 : 10);
+    }
     fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(file, JSON.stringify(merge(current, command), null, 2) + '\n');
+    fs.writeFileSync(file, JSON.stringify(current, null, 2) + '\n');
 }

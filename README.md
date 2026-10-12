@@ -10,6 +10,7 @@ a session opens.
 | `.agents/skills/*` | `~/.claude/skills/` | [obra/superpowers](https://github.com/obra/superpowers) (9 skills) and [find-skills](https://github.com/vercel-labs/skills), unmodified |
 | `home/skills/claude-capabilities` | `~/.claude/skills/` | A map of everything Claude Code can do and which tool, mode and effort fits a task |
 | `home/hooks/prompt-reminder.js` | `~/.claude/hooks/` + `settings.json` | Restates *Before starting a task* on every prompt; silent on system notifications |
+| `scripts/self-update.sh` | `settings.json` (SessionStart) | Pulls this repo at each session start and re-installs when it moved, so a pushed change reaches the next session |
 
 A project's own `CLAUDE.md` always wins over the global one for that project.
 
@@ -22,7 +23,7 @@ git clone https://github.com/yoavits/claude-config ~/claude-config
 bash ~/claude-config/install.sh
 ```
 
-Update later with `git -C ~/claude-config pull && bash ~/claude-config/install.sh`.
+It keeps itself up to date: each session start pulls `~/claude-config` and re-installs if it moved.
 
 **In cloud sessions** (claude.ai/code): open the environment's settings (the
 environment menu in a session's title bar → **Edit**) and add this line to its
@@ -33,7 +34,9 @@ git clone --depth 1 https://github.com/yoavits/claude-config /tmp/claude-config 
 ```
 
 Every new session in that environment then starts with this setup, whatever
-repository it opens.
+repository it opens. A cloud environment runs its setup script once and starts
+later sessions from a snapshot; the self-update hook pulls this repo at each
+session start, so changes pushed here arrive without editing the script again.
 
 ### What the installer touches
 

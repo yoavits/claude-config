@@ -44,6 +44,8 @@ test('installs CLAUDE.md, every skill, the hook and its settings', () => {
     const settings = JSON.parse(fs.readFileSync(path.join(dest, 'settings.json'), 'utf8'));
     const cmds = settings.hooks.UserPromptSubmit.flatMap((e) => e.hooks.map((h) => h.command));
     assert.deepEqual(cmds, ['node "$HOME/.claude/hooks/prompt-reminder.js"']);
+    const start = settings.hooks.SessionStart.flatMap((e) => e.hooks.map((h) => h.command));
+    assert.deepEqual(start, [`bash "${ROOT}/scripts/self-update.sh"`]);
 });
 
 test('keeps the user’s own settings, hooks, skills and CLAUDE.md', () => {

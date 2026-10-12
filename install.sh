@@ -14,7 +14,7 @@
 #   skills/<name>/             every skill in .agents/skills and home/skills (replaced per skill;
 #                              skills of yours with other names are left alone)
 #   hooks/prompt-reminder.js   the UserPromptSubmit reminder
-#   settings.json              the reminder hook merged in; every other setting kept
+#   settings.json              the reminder and self-update hooks merged in; every other setting kept
 #
 # Idempotent: run it again to update. It needs node (Claude Code needs it anyway).
 set -euo pipefail
@@ -53,6 +53,11 @@ if [ "$DEST" = "$HOME/.claude" ]; then
 else
   HOOK_CMD="node \"$DEST/hooks/prompt-reminder.js\""
 fi
-node "$SRC/scripts/merge-settings.js" "$DEST/settings.json" "$HOOK_CMD"
+# The self-update runs from this clone, wherever it is (~/claude-config locally,
+# /tmp/claude-config in the cloud), so a session pulls the repo it came from.
+UPDATE_CMD="bash \"$SRC/scripts/self-update.sh\""
+node "$SRC/scripts/merge-settings.js" "$DEST/settings.json" \
+  UserPromptSubmit "$HOOK_CMD" \
+  SessionStart "$UPDATE_CMD"
 
 log "installed into $DEST: CLAUDE.md, $count skills, prompt-reminder hook"
