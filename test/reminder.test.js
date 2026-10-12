@@ -58,7 +58,9 @@ test('silent on system notifications; reminds on anything else', () => {
         '[SYSTEM NOTIFICATION - NOT USER INPUT]',
         // A hand-back with a short preamble before its envelope (12 Oct 2026).
         'Agent finished.\n<task-notification>\n<status>completed</status>',
-        'Report follows.\n<system-reminder>\n[SYSTEM NOTIFICATION - NOT USER INPUT]'
+        'Report follows.\n<system-reminder>\n[SYSTEM NOTIFICATION - NOT USER INPUT]',
+        // A subagent's report, as it arrives in the parent (re-trial, 12 Oct 2026).
+        '<agent-message from="af536fdfc0471f01b">\n[Subagent hand-back] The text below is the final report'
     ]) {
         assert.equal(run(p).stdout, '', `reminded on: ${p.slice(0, 30)}`);
     }
@@ -70,4 +72,10 @@ test('silent on system notifications; reminds on anything else', () => {
 test('a request that only quotes a tag late in the text still gets the reminder', () => {
     const long = 'Please look at this log. ' + 'x'.repeat(400) + ' <task-notification>';
     assert.match(run(long).stdout, /Before starting/);
+});
+
+test('systematic-debugging is offered for a bug, not chained after every plan', () => {
+    const out = run('x').stdout;
+    assert.match(out, /systematic-debugging/);
+    assert.doesNotMatch(out, /->\s*systematic-debugging/, 'reads as a step every hard task goes through');
 });

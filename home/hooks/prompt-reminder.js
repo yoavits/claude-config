@@ -25,16 +25,18 @@
 const REMINDER = [
     'Before starting (~/.claude/CLAUDE.md; a project CLAUDE.md wins): check the premise first.',
     'Shape not settled (needs design, unknown cause, money or access logic): find the skill, then',
-    'brainstorming -> writing-plans -> systematic-debugging -> verification-before-completion. Known shape: just do it, then verify.'
+    'brainstorming -> writing-plans (a bug: systematic-debugging). Known shape: just do it.',
+    'Either way, verification-before-completion before calling it done.'
 ].join('\n');
 
 // Envelopes that carry something other than a person's request.
 // Matched near the start rather than at it: a hand-back or relayed event can
 // arrive with a short preamble before its envelope (seen on 12 Oct 2026, when a
-// subagent's report still drew the reminder). A person's own request does not
+// subagent's report still drew the reminder; a subagent's report arrives in an
+// agent-message envelope). A person's own request does not
 // open with these tags within its first few hundred characters.
 const NOT_A_TASK =
-    /<(?:system-reminder|task-notification|wake|webhook-payload|child-session-event|local-command-caveat|local-command-stdout|other-session)\b|\[SYSTEM NOTIFICATION/;
+    /<(?:system-reminder|task-notification|agent-message|wake|webhook-payload|child-session-event|local-command-caveat|local-command-stdout|other-session)\b|\[SYSTEM NOTIFICATION/;
 const LOOKAHEAD = 300;
 
 function isTask(raw) {
