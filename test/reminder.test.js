@@ -21,8 +21,8 @@ test('it prints the reminder, short and fast', () => {
     const started = Date.now();
     const r = run('fix the login bug');
     assert.equal(r.status, 0, r.stderr);
-    assert.match(r.stdout, /Before starting a task/);
-    assert.ok(r.stdout.length < 800, `${r.stdout.length} chars on every prompt`);
+    assert.match(r.stdout, /Before starting/);
+    assert.ok(r.stdout.length < 400, `${r.stdout.length} chars on every prompt`);
     assert.ok(Date.now() - started < 1500);
 });
 
@@ -33,7 +33,7 @@ test('every skill it names is shipped by this repo', () => {
     const out = run('x').stdout;
     const named = new Set((out.match(/[A-Za-z]+(?:-[A-Za-z]+)+/g) || []).filter((w) => !PROSE.has(w)));
     if (/\bbrainstorming\b/.test(out)) named.add('brainstorming');
-    assert.ok(named.size >= 7, `only ${named.size} recognised`);
+    assert.ok(named.size >= 4, `only ${named.size} recognised`);
     const shipped = (s) =>
         fs.existsSync(path.join(ROOT, '.agents', 'skills', s, 'SKILL.md')) || fs.existsSync(path.join(ROOT, 'home', 'skills', s, 'SKILL.md'));
     for (const s of named) assert.ok(shipped(s), `${s} is named but not shipped`);
@@ -55,11 +55,19 @@ test('silent on system notifications; reminds on anything else', () => {
         '<task-notification>\n<task-type>x</task-type>',
         '<wake reason="external-event">',
         '<webhook-payload>{}</webhook-payload>',
-        '[SYSTEM NOTIFICATION - NOT USER INPUT]'
+        '[SYSTEM NOTIFICATION - NOT USER INPUT]',
+        // A hand-back with a short preamble before its envelope (12 Oct 2026).
+        'Agent finished.\n<task-notification>\n<status>completed</status>',
+        'Report follows.\n<system-reminder>\n[SYSTEM NOTIFICATION - NOT USER INPUT]'
     ]) {
         assert.equal(run(p).stdout, '', `reminded on: ${p.slice(0, 30)}`);
     }
     for (const input of ['Do it', '<command-name>/code-review</command-name>', { raw: 'not json' }]) {
-        assert.match(run(input).stdout, /Before starting a task/, `no reminder on ${JSON.stringify(input)}`);
+        assert.match(run(input).stdout, /Before starting/, `no reminder on ${JSON.stringify(input)}`);
     }
+});
+
+test('a request that only quotes a tag late in the text still gets the reminder', () => {
+    const long = 'Please look at this log. ' + 'x'.repeat(400) + ' <task-notification>';
+    assert.match(run(long).stdout, /Before starting/);
 });

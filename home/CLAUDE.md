@@ -9,7 +9,8 @@ next install overwrites it.
 
 0. **Check the premise first.** Spend a few minutes looking at whether the thing
    already exists or already works. If the task's premise is wrong, say so before
-   any of the steps below.
+   any of the steps below. In trials this step did most of the real work: three
+   of three tasks turned out done, nearly done or blocked.
 1. **Find the skill.** Start with **the session's own skill list**: project
    skills and `~/.claude/skills`, as listed in the session or by `/skills`. A
    project's own skill beats an upstream one. `SearchSkills` / `ListSkills` only
@@ -18,17 +19,18 @@ next install overwrites it.
    [--owner obra|vercel-labs|anthropics]`, with specific terms first and the
    synonym second. Then `SuggestSkills` for work that recurs. Only when all of
    these come back empty, work from general knowledge, and say so.
-2. **A hard task runs on the Superpowers skills.** A task is hard when it is any of:
-   a feature or behaviour change, a bug whose cause is not known, anything that
-   touches money or auth, a sweep across many files, or more than about three
-   steps.
+2. **A hard task runs on the Superpowers skills.** A task is hard when its shape
+   is not settled: it needs design, a bug's cause is not known, or it changes how
+   money is computed or charged or how access is decided. A change whose shape
+   is already clear, even across several files, skips `brainstorming`; write a
+   plan only when it has more than about three steps.
 
    | Phase | Skill |
    |---|---|
    | Anything new, before designing it | `brainstorming` |
    | A spec in hand, before touching code | `writing-plans` |
    | Implementing a plan yourself | `executing-plans` |
-   | Any feature or bugfix, before implementation code | `test-driven-development` |
+   | Any feature or bugfix, before implementation code | `test-driven-development`, unless the project has its own test rule (then follow that) |
    | A bug, failure or anything unexplained | `systematic-debugging` |
    | Before claiming done, committing or opening a PR | `verification-before-completion` |
    | Finishing a feature / acting on review | `requesting-code-review` / `receiving-code-review` |
@@ -38,15 +40,18 @@ next install overwrites it.
    `subagent-driven-development`) defer to the project's own branch workflow and
    agents.
 3. **Pick the tool and the dial.** The `claude-capabilities` skill maps every
-   tool, mode, model and effort level. Effort: `low` for lookups, `medium` for
+   tool, mode, model and effort level. A session cannot raise its own effort, so
+   when a task needs more than the session has, say so; set `effort:` on the
+   subagents and skills you start. As a guide: `low` for lookups, `medium` for
    clear edits, `high` for features, `xhigh` for money, auth or a bug that
    resisted one attempt. Use plan mode first for a multi-file change whose shape
    is unclear. Dynamic workflows and ultracode run only on the owner's explicit
    opt-in.
 
-**A one-liner skips all three**: a typo, a copy tweak, a plain question. The
-`prompt-reminder` hook restates this on every prompt and stays silent on system
-notifications.
+**Step 0 always runs. A small change with a known shape skips 1–3**: a typo, a
+copy tweak, a one-line fix, a plain question. The `prompt-reminder` hook
+restates this on every prompt, and stays silent on system notifications and
+task reports.
 
 ## Verification
 

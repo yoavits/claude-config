@@ -23,25 +23,24 @@
 'use strict';
 
 const REMINDER = [
-    'Before starting a task (~/.claude/CLAUDE.md; a project CLAUDE.md wins):',
-    '0. Check the premise: does the thing already exist or work?',
-    '1. Find the skill: the session skill list first (project + ~/.claude), then SearchSkills,',
-    '   then /find-skills, then SuggestSkills.',
-    '2. A hard task (feature or behaviour change, unknown-cause bug, money or auth, multi-file sweep,',
-    '   more than ~3 steps) runs on Superpowers: brainstorming -> writing-plans -> executing-plans /',
-    '   test-driven-development -> systematic-debugging -> verification-before-completion.',
-    '3. Fit tool, mode and effort to the task (claude-capabilities skill).',
-    'A one-liner or a plain question skips all three.'
+    'Before starting (~/.claude/CLAUDE.md; a project CLAUDE.md wins): check the premise first.',
+    'Shape not settled (needs design, unknown cause, money or access logic): find the skill, then',
+    'brainstorming -> writing-plans -> systematic-debugging -> verification-before-completion. Known shape: just do it, then verify.'
 ].join('\n');
 
 // Envelopes that carry something other than a person's request.
+// Matched near the start rather than at it: a hand-back or relayed event can
+// arrive with a short preamble before its envelope (seen on 12 Oct 2026, when a
+// subagent's report still drew the reminder). A person's own request does not
+// open with these tags within its first few hundred characters.
 const NOT_A_TASK =
-    /^\s*(?:<(?:system-reminder|task-notification|wake|webhook-payload|child-session-event|local-command-caveat|local-command-stdout)\b|\[SYSTEM NOTIFICATION)/;
+    /<(?:system-reminder|task-notification|wake|webhook-payload|child-session-event|local-command-caveat|local-command-stdout|other-session)\b|\[SYSTEM NOTIFICATION/;
+const LOOKAHEAD = 300;
 
 function isTask(raw) {
     try {
         const { prompt } = JSON.parse(raw);
-        return typeof prompt !== 'string' || !NOT_A_TASK.test(prompt);
+        return typeof prompt !== 'string' || !NOT_A_TASK.test(prompt.slice(0, LOOKAHEAD));
     } catch {
         return true;
     }
