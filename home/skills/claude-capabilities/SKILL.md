@@ -153,8 +153,10 @@ message so they run in parallel.
 
 ### Skills (`.claude/skills/<name>/SKILL.md`)
 
-Frontmatter that matters: `description` (what triggers it — put the trigger words
-here), `disable-model-invocation: true` (manual `/name` only), `user-invocable:
+**Finding one**: the session's skill list shows project and user skills;
+`SearchSkills` / `ListSkills` search only account and organisation skills and
+cannot see those. Frontmatter that matters: `description` (what triggers it — put
+the trigger words here), `disable-model-invocation: true` (manual `/name` only), `user-invocable:
 false` (Claude-only), `allowed-tools` / `disallowed-tools`, `model`, `effort`,
 `context: fork` (+ `agent`, `background`) to run in a subagent, `paths` (auto-load
 only for matching files), `hooks`, `arguments`. `/skills` lists them,

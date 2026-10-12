@@ -7,12 +7,17 @@ next install overwrites it.
 
 ## Before starting a task
 
-1. **Find the skill.** Search the installed skills first (`SearchSkills` /
-   `ListSkills`, matched on the task's domain words; a project's own skill beats
-   an upstream one). Then the ecosystem: `/find-skills`, i.e. `npx skills find
-   <query> [--owner obra|vercel-labs|anthropics]`, with specific terms first and
-   the synonym second. Then `SuggestSkills` for work that recurs. Only when all
-   three come back empty, work from general knowledge, and say so.
+0. **Check the premise first.** Spend a few minutes looking at whether the thing
+   already exists or already works. If the task's premise is wrong, say so before
+   any of the steps below.
+1. **Find the skill.** Start with **the session's own skill list**: project
+   skills and `~/.claude/skills`, as listed in the session or by `/skills`. A
+   project's own skill beats an upstream one. `SearchSkills` / `ListSkills` only
+   search account and organisation skills; they cannot see project or user
+   skills. Then the ecosystem: `/find-skills`, i.e. `npx skills find <query>
+   [--owner obra|vercel-labs|anthropics]`, with specific terms first and the
+   synonym second. Then `SuggestSkills` for work that recurs. Only when all of
+   these come back empty, work from general knowledge, and say so.
 2. **A hard task runs on the Superpowers skills.** A task is hard when it is any of:
    a feature or behaviour change, a bug whose cause is not known, anything that
    touches money or auth, a sweep across many files, or more than about three
@@ -58,12 +63,15 @@ lock), never by the exit code of the command that killed it.
 
 ## Working style
 
-- Read a file before editing it. One task per commit. For anything touching
+- Open a file with Read (or `cat`/`head` on that one file) before changing it:
+  that is what loads a project's path-scoped `.claude/rules/`; `grep` and
+  `sed -n` load nothing. One task per commit. For anything touching
   money or auth, write the failing test first.
 - If a task's premise turns out to be wrong when you open the code, say so
   rather than working around it.
-- **After a push, check CI** and report the run's conclusion and number. A task
-  is not done while its run is red.
+- **After a push, check CI on the branch you pushed** and report the run's
+  conclusion and number. A task is not done while its run is red. In cloud
+  sessions there is no authenticated `gh`; use the GitHub MCP tools.
 - **Never throw away uncommitted work.** No `git checkout -- <file>` to undo one
   edit, and no bare `git stash`; use `git stash push -m "<tag>" -- <file>`.
 - **A `git status` not preceded by a `git fetch` is not evidence.**

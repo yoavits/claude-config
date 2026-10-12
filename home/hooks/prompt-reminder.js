@@ -24,7 +24,9 @@
 
 const REMINDER = [
     'Before starting a task (~/.claude/CLAUDE.md; a project CLAUDE.md wins):',
-    '1. Find the skill: SearchSkills/ListSkills first, then /find-skills, then SuggestSkills.',
+    '0. Check the premise: does the thing already exist or work?',
+    '1. Find the skill: the session skill list first (project + ~/.claude), then SearchSkills,',
+    '   then /find-skills, then SuggestSkills.',
     '2. A hard task (feature or behaviour change, unknown-cause bug, money or auth, multi-file sweep,',
     '   more than ~3 steps) runs on Superpowers: brainstorming -> writing-plans -> executing-plans /',
     '   test-driven-development -> systematic-debugging -> verification-before-completion.',
