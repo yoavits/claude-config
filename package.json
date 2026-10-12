@@ -1,0 +1,12 @@
+{
+  "name": "claude-config",
+  "private": true,
+  "description": "My Claude Code setup: global rules, skills and hooks, installed into ~/.claude.",
+  "scripts": {
+    "test": "node --test",
+    "update-skills": "npx -y skills update -p -y"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
