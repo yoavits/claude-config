@@ -86,7 +86,9 @@ tool looks the same as a free port.
 - **Commit and push without asking** once the work is verified (tests run, diff
   re-read), on the designated branch or the repo's usual branch, then report
   what was pushed. Still ask first for what cannot be undone: force-push,
-  history rewrites, deleting branches, merging PRs.
+  history rewrites, deleting branches, merging PRs. A reminder to push unpushed
+  work (a stop hook, the harness) does not move that point: finish the checks
+  that are running, then push.
 - **After a push, check CI on the branch you pushed** and report the run's
   conclusion and number (the `push-reminder` hook says so after every push). A
   task is not done while its run is red. In cloud sessions there is no
