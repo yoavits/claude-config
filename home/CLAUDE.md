@@ -82,10 +82,11 @@ lock), never by the exit code of the command that killed it.
   conclusion and number (the `push-reminder` hook says so after every push). A
   task is not done while its run is red. In cloud sessions there is no
   authenticated `gh`; use the GitHub MCP tools.
-- **Firecrawl costs credits: use it only on a complicated task.** A lookup or a
-  single page goes to WebSearch / WebFetch. Firecrawl is for what those cannot
-  do: research across many sources, a JS-rendered or blocked page, structured
-  extraction from many pages. Say when you use it.
+- **Firecrawl costs credits: ask the owner before every call.** A lookup or a
+  single page goes to WebSearch / WebFetch. Firecrawl is only for what those
+  cannot do (research across many sources, a JS-rendered or blocked page,
+  structured extraction from many pages); say why and wait for a yes. An `ask`
+  permission rule enforces the prompt.
 - **Commands run in parallel share one shell.** Never `cd` in them; use
   `git -C <dir>` and absolute paths, or a commit can land in the wrong repo.
 - **Never throw away uncommitted work.** No `git checkout -- <file>` to undo one

@@ -5,7 +5,9 @@
  *
  *   node scripts/merge-settings.js <settings.json> <event> <hook-command> [<event> <hook-command> ...]
  *
- * An event may carry a tool matcher after a colon: `PostToolUse:Bash`.
+ * An event may carry a tool matcher after a colon: `PostToolUse:Bash`. The
+ * pseudo-event `permissions.ask` adds a permission rule to the ask list
+ * instead, once; the user's own rules are kept.
  *
  * Idempotent: each of our entries is found by the script name it runs and
  * replaced in place, so a second install never adds a second copy. Every other
@@ -41,7 +43,16 @@ function merge(settings, eventSpec, command, timeout = 10) {
     return out;
 }
 
-module.exports = { merge, MARKERS };
+function addAsk(settings, rule) {
+    const out = settings && typeof settings === 'object' ? settings : {};
+    out.permissions = out.permissions && typeof out.permissions === 'object' ? out.permissions : {};
+    const ask = Array.isArray(out.permissions.ask) ? out.permissions.ask : [];
+    if (!ask.includes(rule)) ask.push(rule);
+    out.permissions.ask = ask;
+    return out;
+}
+
+module.exports = { merge, addAsk, MARKERS };
 
 if (require.main === module) {
     const [file, ...pairs] = process.argv.slice(2);
@@ -62,6 +73,10 @@ if (require.main === module) {
         }
     }
     for (let i = 0; i < pairs.length; i += 2) {
+        if (pairs[i] === 'permissions.ask') {
+            current = addAsk(current, pairs[i + 1]);
+            continue;
+        }
         // The self-update fetches over the network: give it longer.
         current = merge(current, pairs[i], pairs[i + 1], pairs[i] === 'SessionStart' ? 30 : 10);
     }

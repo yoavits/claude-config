@@ -15,7 +15,8 @@
 #                              skills of yours with other names are left alone)
 #   hooks/prompt-reminder.js   the UserPromptSubmit reminder
 #   hooks/push-reminder.js     the PostToolUse reminder to check CI after a push
-#   settings.json              the reminder, push and self-update hooks merged in; every other setting kept
+#   settings.json              the reminder, push and self-update hooks merged in, and an ask rule
+#                              for every Firecrawl tool (it spends credits); every other setting kept
 #
 # Idempotent: run it again to update. It needs node (Claude Code needs it anyway).
 set -euo pipefail
@@ -63,6 +64,8 @@ UPDATE_CMD="bash \"$SRC/scripts/self-update.sh\""
 node "$SRC/scripts/merge-settings.js" "$DEST/settings.json" \
   UserPromptSubmit "$HOOK_CMD" \
   PostToolUse:Bash "$PUSH_CMD" \
-  SessionStart "$UPDATE_CMD"
+  SessionStart "$UPDATE_CMD" \
+  permissions.ask 'mcp__Firecrawl__*' \
+  permissions.ask 'mcp__firecrawl__*'
 
 log "installed into $DEST: CLAUDE.md, $count skills, prompt and push reminder hooks"

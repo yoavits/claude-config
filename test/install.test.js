@@ -56,6 +56,15 @@ test('installs CLAUDE.md, every skill, the hook and its settings', () => {
     assert.deepEqual(start, [`bash "${root}/scripts/self-update.sh"`]);
 });
 
+test('every Firecrawl call asks the owner first', () => {
+    // Firecrawl spends credits. An `ask` rule forces a permission prompt in every
+    // mode, auto and bypassPermissions included; a hook could not override it.
+    const home = scratch();
+    install(home);
+    const settings = JSON.parse(fs.readFileSync(path.join(home, '.claude', 'settings.json'), 'utf8'));
+    assert.deepEqual(settings.permissions.ask, ['mcp__Firecrawl__*', 'mcp__firecrawl__*']);
+});
+
 test('keeps the user’s own settings, hooks, skills and CLAUDE.md', () => {
     const home = scratch();
     const dest = path.join(home, '.claude');
@@ -76,7 +85,7 @@ test('keeps the user’s own settings, hooks, skills and CLAUDE.md', () => {
     install(home);
     const settings = JSON.parse(fs.readFileSync(path.join(dest, 'settings.json'), 'utf8'));
     assert.equal(settings.theme, 'dark');
-    assert.deepEqual(settings.permissions, { allow: ['Bash(ls *)'] });
+    assert.deepEqual(settings.permissions.allow, ['Bash(ls *)'], 'their allow rules changed');
     assert.equal(settings.hooks.PostToolUse[0].hooks[0].command, 'prettier');
     const cmds = settings.hooks.UserPromptSubmit.flatMap((e) => e.hooks.map((h) => h.command));
     assert.deepEqual(cmds, ['echo mine', 'node "$HOME/.claude/hooks/prompt-reminder.js"']);
