@@ -52,7 +52,8 @@ next install overwrites it.
 **Step 0 always runs. A small change with a known shape skips 1–3**: a typo, a
 copy tweak, a one-line fix, a plain question. The `prompt-reminder` hook
 restates this on every prompt, and stays silent on system notifications and
-task reports.
+task reports. A task another session sends you is a task, so it gets the
+reminder.
 
 ## Verification
 
