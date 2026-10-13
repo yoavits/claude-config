@@ -9,7 +9,10 @@ a session opens.
 | `home/CLAUDE.md` | `~/.claude/CLAUDE.md` | Global instructions: find the skill first, run hard tasks on Superpowers, verification, working style |
 | `.agents/skills/*` | `~/.claude/skills/` | [obra/superpowers](https://github.com/obra/superpowers) (9 skills) and [find-skills](https://github.com/vercel-labs/skills), unmodified |
 | `home/skills/claude-capabilities` | `~/.claude/skills/` | A map of everything Claude Code can do and which tool, mode and effort fits a task |
-| `home/hooks/prompt-reminder.js` | `~/.claude/hooks/` + `settings.json` | Restates *Before starting a task* on every prompt; silent on system notifications |
+| `home/skills/project-setup` | `~/.claude/skills/` | Makes any repo ready for fresh sessions: a verified project CLAUDE.md, tests that run in the cloud container, rules for risky areas |
+| `home/skills/trial-loop` | `~/.claude/skills/` | Measures a project with fresh trial sessions, verifies what they hit, fixes it, reruns until clean |
+| `home/hooks/prompt-reminder.js` | `~/.claude/hooks/` + `settings.json` | Restates *Before starting a task* on every prompt (and, in a repo with no CLAUDE.md, says to run `project-setup`); silent on system notifications |
+| `home/hooks/push-reminder.js` | `~/.claude/hooks/` + `settings.json` | After a `git push`, says to check CI on the pushed branch |
 | `scripts/self-update.sh` | `settings.json` (SessionStart) | Pulls this repo at each session start and re-installs when it moved, so a pushed change reaches the next session |
 
 A project's own `CLAUDE.md` always wins over the global one for that project.
@@ -34,7 +37,11 @@ git clone --depth 1 https://github.com/yoavits/claude-config /tmp/claude-config 
 ```
 
 Every new session in that environment then starts with this setup, whatever
-repository it opens. A cloud environment runs its setup script once and starts
+repository it opens. Also add the environment variable
+`CLAUDE_CODE_EFFORT_LEVEL=high` there: effort in cloud sessions comes from the
+environment, not from settings. **Do both in every environment you use**, or
+use one environment for every project; an environment without them runs plain
+Claude Code. A cloud environment runs its setup script once and starts
 later sessions from a snapshot; the self-update hook pulls this repo at each
 session start, so changes pushed here arrive without editing the script again.
 

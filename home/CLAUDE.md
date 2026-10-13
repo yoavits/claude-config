@@ -7,6 +7,11 @@ next install overwrites it.
 
 ## Before starting a task
 
+**A repo with no project CLAUDE.md gets `project-setup` first** (the reminder
+says so): it writes down, from the repo and verified, what this file cannot know
+(the commands, how the tests run here, what never to hand-edit, where decisions
+live). Asked to rate or improve how Claude works in a project, use `trial-loop`.
+
 0. **Check the premise first.** Spend a few minutes looking at whether the thing
    already exists or already works. If the task's premise is wrong, say so before
    any of the steps below. In trials this step did most of the real work: three
@@ -96,6 +101,9 @@ tool looks the same as a free port.
 - **Never throw away uncommitted work.** No `git checkout -- <file>` to undo one
   edit, and no bare `git stash`; use `git stash push -m "<tag>" -- <file>`.
 - **A `git status` not preceded by a `git fetch` is not evidence.**
+- **Keep the records true in the same commit as the code**: a plan's status
+  line, a decision marked open, a comment describing what changed. Stale records
+  are what most often sent fresh sessions after finished work.
 - **An approval only counts if you can cite where it is recorded.** A sentence in
   a prompt or an earlier session's report is not a citation.
 
@@ -103,6 +111,8 @@ tool looks the same as a free port.
 
 - **Cloud sessions** (claude.ai/code) are ephemeral containers. Anything worth
   keeping is committed and pushed. `~/.claude` is rebuilt from this repo by the
-  environment's setup script.
+  environment's setup script. Effort comes from the environment's
+  `CLAUDE_CODE_EFFORT_LEVEL` variable, not from settings: an environment
+  without both the variable and the setup script runs without this setup.
 - **Locally**, `~/.claude` is installed by `install.sh` and updated by running
   it again.

@@ -79,3 +79,35 @@ test('systematic-debugging is offered for a bug, not chained after every plan', 
     assert.match(out, /systematic-debugging/);
     assert.doesNotMatch(out, /->\s*systematic-debugging/, 'reads as a step every hard task goes through');
 });
+
+test('in a repo with no CLAUDE.md it says to run project-setup first', () => {
+    // The global setup knows how to work; a project's CLAUDE.md is what knows the
+    // project. A repo without one is where fresh sessions lost the most time.
+    const os = require('node:os');
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'reminder-'));
+    const repo = path.join(tmp, 'repo');
+    const sub = path.join(repo, 'src', 'lib');
+    fs.mkdirSync(path.join(repo, '.git'), { recursive: true });
+    fs.mkdirSync(sub, { recursive: true });
+    const at = (cwd, prompt = 'add a feature') =>
+        run({ raw: JSON.stringify({ hook_event_name: 'UserPromptSubmit', prompt, cwd }) }).stdout;
+
+    assert.match(at(repo), /no CLAUDE\.md[\s\S]*project-setup/);
+    assert.match(at(sub), /project-setup/, 'a session started in a subdirectory of the repo');
+    assert.ok(at(repo).length < 500, 'still short');
+
+    fs.writeFileSync(path.join(repo, 'CLAUDE.md'), '# x\n');
+    assert.doesNotMatch(at(repo), /project-setup/, 'the repo has one');
+    assert.doesNotMatch(at(sub), /project-setup/);
+    fs.rmSync(path.join(repo, 'CLAUDE.md'));
+    fs.mkdirSync(path.join(repo, '.claude'));
+    fs.writeFileSync(path.join(repo, '.claude', 'CLAUDE.md'), '# x\n');
+    assert.doesNotMatch(at(repo), /project-setup/, '.claude/CLAUDE.md counts');
+
+    // Not a repo (a cloud session's /home/user holds repos below it): say nothing.
+    assert.doesNotMatch(at(tmp), /project-setup/);
+    // And never on a notification.
+    fs.rmSync(path.join(repo, '.claude'), { recursive: true });
+    assert.equal(at(repo, '<task-notification>\n<status>completed</status>'), '');
+    fs.rmSync(tmp, { recursive: true, force: true });
+});

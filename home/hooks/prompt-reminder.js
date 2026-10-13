@@ -22,6 +22,9 @@
 
 'use strict';
 
+const fs = require('node:fs');
+const path = require('node:path');
+
 const REMINDER = [
     'Before starting (~/.claude/CLAUDE.md; a project CLAUDE.md wins): check the premise first.',
     'Shape not settled (needs design, unknown cause, money or access logic): find the skill, then',
@@ -48,12 +51,34 @@ function isTask(raw) {
     }
 }
 
+// A repo with no project CLAUDE.md is where fresh sessions lost the most time:
+// the global setup knows how to work, not what this project is or how its
+// tests run. Only inside a git repo, so a directory that merely holds repos
+// (a cloud session's /home/user) says nothing.
+const NO_PROJECT_FILE =
+    'This repo has no CLAUDE.md: run the project-setup skill first, unless the task is a quick answer.';
+
+function needsSetup(raw) {
+    try {
+        const { cwd } = JSON.parse(raw);
+        if (typeof cwd !== 'string' || !cwd) return false;
+        const has = (dir, ...p) => fs.existsSync(path.join(dir, ...p));
+        for (let dir = path.resolve(cwd); ; dir = path.dirname(dir)) {
+            if (has(dir, 'CLAUDE.md') || has(dir, '.claude', 'CLAUDE.md')) return false;
+            if (has(dir, '.git')) return true;
+            if (path.dirname(dir) === dir) return false;
+        }
+    } catch {
+        return false;
+    }
+}
+
 let raw = '';
 let finished = false;
 function finish() {
     if (finished) return;
     finished = true;
-    if (isTask(raw)) process.stdout.write(REMINDER + '\n');
+    if (isTask(raw)) process.stdout.write(REMINDER + '\n' + (needsSetup(raw) ? NO_PROJECT_FILE + '\n' : ''));
     process.exit(0);
 }
 
