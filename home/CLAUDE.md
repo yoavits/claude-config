@@ -38,7 +38,8 @@ next install overwrites it.
    `using-superpowers` is the index. Skills it names that are not installed here
    (`using-git-worktrees`, `finishing-a-development-branch`,
    `subagent-driven-development`) defer to the project's own branch workflow and
-   agents.
+   agents. `writing-plans` saves where the project keeps plans, else in the
+   scratchpad (not `docs/superpowers/plans/`), and hands off to `executing-plans`.
 3. **Pick the tool and the dial.** The `claude-capabilities` skill maps every
    tool, mode, model and effort level. A session cannot raise its own effort, so
    when a task needs more than the session has, say so; set `effort:` on the
@@ -64,7 +65,9 @@ render the page rather than reading the template; run the test rather than
 reading it.
 
 **Verify a process is gone by the resource it holds** (the port, the pid, the
-lock), never by the exit code of the command that killed it.
+lock), never by the exit code of the command that killed it. `lsof -ti :<port>`
+finds the pid; cloud containers have no `ss`, and an empty pid from a missing
+tool looks the same as a free port.
 
 ## Working style
 
