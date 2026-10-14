@@ -52,7 +52,17 @@ function addAsk(settings, rule) {
     return out;
 }
 
-module.exports = { merge, addAsk, MARKERS };
+// Remove a rule an earlier install added to the ask list; the user's own rules stay.
+function removeAsk(settings, rule) {
+    const out = settings && typeof settings === 'object' ? settings : {};
+    const ask = out.permissions && Array.isArray(out.permissions.ask) ? out.permissions.ask : null;
+    if (!ask) return out;
+    out.permissions.ask = ask.filter((r) => r !== rule);
+    if (out.permissions.ask.length === 0) delete out.permissions.ask;
+    return out;
+}
+
+module.exports = { merge, addAsk, removeAsk, MARKERS };
 
 if (require.main === module) {
     const [file, ...pairs] = process.argv.slice(2);
@@ -75,6 +85,10 @@ if (require.main === module) {
     for (let i = 0; i < pairs.length; i += 2) {
         if (pairs[i] === 'permissions.ask') {
             current = addAsk(current, pairs[i + 1]);
+            continue;
+        }
+        if (pairs[i] === 'permissions.unask') {
+            current = removeAsk(current, pairs[i + 1]);
             continue;
         }
         // The self-update fetches over the network: give it longer.

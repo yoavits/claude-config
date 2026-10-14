@@ -56,13 +56,22 @@ test('installs CLAUDE.md, every skill, the hook and its settings', () => {
     assert.deepEqual(start, [`bash "${root}/scripts/self-update.sh"`]);
 });
 
-test('every Firecrawl call asks the owner first', () => {
-    // Firecrawl spends credits. An `ask` rule forces a permission prompt in every
-    // mode, auto and bypassPermissions included; a hook could not override it.
+test('Firecrawl no longer asks: the ask rules an earlier install added are removed, the user’s own kept', () => {
+    // The owner approves every action in advance; only questions and plans go to them.
     const home = scratch();
+    const dest = path.join(home, '.claude');
+    fs.mkdirSync(dest, { recursive: true });
+    fs.writeFileSync(path.join(dest, 'settings.json'), JSON.stringify({
+        permissions: { ask: ['mcp__Firecrawl__*', 'Bash(rm *)', 'mcp__firecrawl__*'] },
+    }));
     install(home);
-    const settings = JSON.parse(fs.readFileSync(path.join(home, '.claude', 'settings.json'), 'utf8'));
-    assert.deepEqual(settings.permissions.ask, ['mcp__Firecrawl__*', 'mcp__firecrawl__*']);
+    const settings = JSON.parse(fs.readFileSync(path.join(dest, 'settings.json'), 'utf8'));
+    assert.deepEqual(settings.permissions.ask, ['Bash(rm *)']);
+
+    const fresh = scratch();
+    install(fresh);
+    const plain = JSON.parse(fs.readFileSync(path.join(fresh, '.claude', 'settings.json'), 'utf8'));
+    assert.equal(plain.permissions && plain.permissions.ask, undefined);
 });
 
 test('keeps the user’s own settings, hooks, skills and CLAUDE.md', () => {

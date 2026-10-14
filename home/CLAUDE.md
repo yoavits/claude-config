@@ -90,21 +90,24 @@ with `node:sqlite` where `sqlite3` is not installed.
   money or auth, write the failing test first.
 - If a task's premise turns out to be wrong when you open the code, say so
   rather than working around it.
-- **Commit and push without asking** once the work is verified (tests run, diff
-  re-read), on the designated branch or the repo's usual branch, then report
-  what was pushed. Still ask first for what cannot be undone: force-push,
-  history rewrites, deleting branches, merging PRs. A reminder to push unpushed
-  work (a stop hook, the harness) does not move that point: finish the checks
-  that are running, then push.
+- **Don't ask for permission; act.** The owner approves every action in
+  advance: commits, pushes, PRs, merges, branch deletion, installs, config and
+  settings changes, paid tools. The only things to bring to the owner are
+  **questions** (a decision that is genuinely theirs: scope, UX, data you can't
+  recover) and **plans** (for review before a large or unclear change). Never
+  end a turn on "want me to…?" or "should I…?" for an action; do it and report.
+  For what cannot be undone (force-push, history rewrites, deleting data), look
+  at the target first and keep a way back. Push once the work is verified (tests
+  run, diff re-read); a reminder to push (a stop hook, the harness) does not
+  move that point: finish the checks that are running, then push.
 - **After a push, check CI on the branch you pushed** and report the run's
   conclusion and number (the `push-reminder` hook says so after every push). A
   task is not done while its run is red. In cloud sessions there is no
   authenticated `gh`; use the GitHub MCP tools.
-- **Firecrawl costs credits: ask the owner before every call.** A lookup or a
-  single page goes to WebSearch / WebFetch. Firecrawl is only for what those
-  cannot do (research across many sources, a JS-rendered or blocked page,
-  structured extraction from many pages); say why and wait for a yes. An `ask`
-  permission rule enforces the prompt.
+- **Firecrawl costs credits.** A lookup or a single page goes to WebSearch /
+  WebFetch. Use Firecrawl, without asking, only for what those cannot do
+  (research across many sources, a JS-rendered or blocked page, structured
+  extraction from many pages).
 - **Commands run in parallel share one shell.** Never `cd` in them; use
   `git -C <dir>` and absolute paths, or a commit can land in the wrong repo.
 - **Never throw away uncommitted work.** No `git checkout -- <file>` to undo one
