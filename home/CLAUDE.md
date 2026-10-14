@@ -75,6 +75,13 @@ lock), never by the exit code of the command that killed it. `lsof -ti :<port>`
 finds the pid; cloud containers have no `ss`, and an empty pid from a missing
 tool looks the same as a free port.
 
+**claude-mem history has gaps.** It stops capturing on its own once weekly
+Claude usage reaches 93%, and nothing in a session says so: missing observations
+mean "not recorded", not "didn't happen". Check
+`~/.claude-mem/observer-health.json` (`quotaCooldown`, `lastSuccessAt`) before
+treating it as the full history. Query `~/.claude-mem/claude-mem.db` read-only
+with `node:sqlite` where `sqlite3` is not installed.
+
 ## Working style
 
 - Open a file with Read (or `cat`/`head` on that one file) before changing it:
