@@ -139,5 +139,7 @@ removed below is gone, even if an older report or memory still names it.
   (superseded by `impeccable`) and the `claude-code-plugins` marketplace.
   Undo: `claude plugin uninstall <name>@claude-plugins-official`,
   `npx skills remove <skill> -g`.
-- claude-mem is installed but disabled (no capture since 2026-10-12):
-  `~/.claude-mem/claude-mem.db` is history up to then, read-only via `node:sqlite`.
+- 2026-10-25 (owner asked): removed the global three.js skills (CustomBotsV3
+  ships its own copies) and `onboarding`; uninstalled claude-mem (data kept in
+  `~/.claude-mem/claude-mem.db`, history only up to 2026-10-12, read-only via
+  `node:sqlite`) and its `thedotmack` marketplace. Undo: see changes.md.
