@@ -40,7 +40,9 @@ live). Asked to rate or improve how Claude works in a project, use `trial-loop`.
    | Before claiming done, committing or opening a PR | `verification-before-completion` |
    | Finishing a feature / acting on review | `requesting-code-review` / `receiving-code-review` |
 
-   `using-superpowers` is the index. Skills it names that are not installed here
+   `using-superpowers` is the index. Where the superpowers plugin is on, these
+   skills come from it (as superpowers:name) and the vendored copies are not
+   installed. Skills it names that this repo does not ship
    (`using-git-worktrees`, `finishing-a-development-branch`,
    `subagent-driven-development`) defer to the project's own branch workflow and
    agents. `writing-plans` saves where the project keeps plans, else in the

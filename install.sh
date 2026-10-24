@@ -12,7 +12,8 @@
 # What it installs (into ${CLAUDE_CONFIG_DIR:-~/.claude}):
 #   CLAUDE.md                  global instructions        (overwritten: edit the repo, not the copy)
 #   skills/<name>/             every skill in .agents/skills and home/skills (replaced per skill;
-#                              skills of yours with other names are left alone)
+#                              skills of yours with other names are left alone; the vendored
+#                              superpowers skills are skipped while that plugin is enabled)
 #   hooks/prompt-reminder.js   the UserPromptSubmit reminder
 #   hooks/push-reminder.js     the PostToolUse reminder to check CI after a push
 #   settings.json              the reminder, push and self-update hooks merged in; the Firecrawl ask
@@ -37,11 +38,23 @@ if [ -f "$DEST/CLAUDE.md" ] && ! grep -q "yoavits/claude-config" "$DEST/CLAUDE.m
 fi
 cp "$SRC/home/CLAUDE.md" "$DEST/CLAUDE.md"
 
+# With the superpowers plugin on, its skills are already loaded: the vendored
+# copies would list each one twice in every session, so they are skipped and an
+# earlier install's copies removed. The cloud, without the plugin, still gets them.
+skip="$(node -e '
+  const fs = require("fs");
+  let s = {}; try { s = JSON.parse(fs.readFileSync(process.argv[1], "utf8")); } catch {}
+  const on = Object.entries(s.enabledPlugins || {}).some(([k, v]) => k.startsWith("superpowers@") && v === true);
+  const lock = JSON.parse(fs.readFileSync(process.argv[2], "utf8")).skills;
+  if (on) for (const [name, l] of Object.entries(lock)) if (l.source === "obra/superpowers") console.log(name);
+' "$DEST/settings.json" "$SRC/skills-lock.json")"
+
 count=0
 for dir in "$SRC"/.agents/skills/*/ "$SRC"/home/skills/*/; do
   [ -f "$dir/SKILL.md" ] || continue
   name="$(basename "$dir")"
   rm -rf "${DEST:?}/skills/$name"
+  if printf '%s\n' "$skip" | grep -qx "$name"; then continue; fi
   cp -R "$dir" "$DEST/skills/$name"
   count=$((count + 1))
 done
