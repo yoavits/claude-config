@@ -75,13 +75,6 @@ lock), never by the exit code of the command that killed it. `lsof -ti :<port>`
 finds the pid; cloud containers have no `ss`, and an empty pid from a missing
 tool looks the same as a free port.
 
-**claude-mem history has gaps.** It stops capturing on its own once weekly
-Claude usage reaches 93%, and nothing in a session says so: missing observations
-mean "not recorded", not "didn't happen". Check
-`~/.claude-mem/observer-health.json` (`quotaCooldown`, `lastSuccessAt`) before
-treating it as the full history. Query `~/.claude-mem/claude-mem.db` read-only
-with `node:sqlite` where `sqlite3` is not installed.
-
 ## Working style
 
 - Open a file with Read (or `cat`/`head` on that one file) before changing it:
@@ -138,4 +131,13 @@ Each swap is listed here, newest first; the full log is
 `~/.claude/scheduled-tasks/claude-plugin-skill-scout/changes.md`. An item
 removed below is gone, even if an older report or memory still names it.
 
-- No swaps yet.
+- 2026-10-25 (owner asked to apply that day's report): installed
+  `session-report`, `claude-md-management`, `typescript-lsp` (official, user
+  scope) and the skills `grill-me`, `grilling`, `handoff` (mattpocock/skills).
+  The `agent-browser` CLI is on PATH; its skill was removed because it tells
+  Claude to prefer it over the built-in browser. Removed `frontend-design`
+  (superseded by `impeccable`) and the `claude-code-plugins` marketplace.
+  Undo: `claude plugin uninstall <name>@claude-plugins-official`,
+  `npx skills remove <skill> -g`.
+- claude-mem is installed but disabled (no capture since 2026-10-12):
+  `~/.claude-mem/claude-mem.db` is history up to then, read-only via `node:sqlite`.
