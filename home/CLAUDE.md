@@ -128,3 +128,14 @@ with `node:sqlite` where `sqlite3` is not installed.
   without both the variable and the setup script runs without this setup.
 - **Locally**, `~/.claude` is installed by `install.sh` and updated by running
   it again.
+
+## Plugins and skills (kept by the weekly scout)
+
+On this machine the `claude-plugin-skill-scout` scheduled task replaces an
+installed plugin or skill when a clearly better one for the same job appears
+(owner's standing approval, recorded in that task's `SKILL.md`, 2026-10-25).
+Each swap is listed here, newest first; the full log is
+`~/.claude/scheduled-tasks/claude-plugin-skill-scout/changes.md`. An item
+removed below is gone, even if an older report or memory still names it.
+
+- No swaps yet.
