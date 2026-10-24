@@ -134,3 +134,32 @@ test('honours CLAUDE_CONFIG_DIR, with an absolute hook path', () => {
     assert.equal(settings.hooks.UserPromptSubmit[0].hooks[0].command, `node "${custom}/hooks/prompt-reminder.js"`);
     assert.ok(!fs.existsSync(path.join(home, '.claude')));
 });
+
+test('with the superpowers plugin on, its vendored copies are skipped and earlier copies removed', () => {
+    // Both copies listed every skill twice in every session; the plugin's were the ones used.
+    const lock = JSON.parse(fs.readFileSync(path.join(ROOT, 'skills-lock.json'), 'utf8')).skills;
+    const ours = Object.keys(lock).filter((s) => lock[s].source === 'obra/superpowers');
+    const others = Object.keys(lock).filter((s) => lock[s].source !== 'obra/superpowers');
+    assert.ok(ours.length >= 5 && others.length >= 1);
+
+    const home = scratch();
+    install(home);
+    const dest = path.join(home, '.claude');
+    for (const s of ours) assert.ok(fs.existsSync(path.join(dest, 'skills', s, 'SKILL.md')), `${s} missing without the plugin`);
+
+    const settingsPath = path.join(dest, 'settings.json');
+    const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    settings.enabledPlugins = { 'superpowers@claude-plugins-official': true };
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+    fs.mkdirSync(path.join(dest, 'skills', 'my-own-skill'), { recursive: true });
+    fs.writeFileSync(path.join(dest, 'skills', 'my-own-skill', 'SKILL.md'), '---\nname: my-own-skill\n---\n');
+    install(home);
+    for (const s of ours) assert.ok(!fs.existsSync(path.join(dest, 'skills', s)), `${s} still installed beside the plugin`);
+    for (const s of others) assert.ok(fs.existsSync(path.join(dest, 'skills', s, 'SKILL.md')), `${s} was removed`);
+    assert.ok(fs.existsSync(path.join(dest, 'skills', 'my-own-skill', 'SKILL.md')), 'a skill of theirs was removed');
+
+    settings.enabledPlugins['superpowers@claude-plugins-official'] = false;
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+    install(home);
+    for (const s of ours) assert.ok(fs.existsSync(path.join(dest, 'skills', s, 'SKILL.md')), `${s} not back with the plugin off`);
+});
