@@ -123,6 +123,11 @@ tool looks the same as a free port.
   without both the variable and the setup script runs without this setup.
 - **Locally**, `~/.claude` is installed by `install.sh` and updated by running
   it again.
+- **On Windows PowerShell 5.1**, a double quote inside an argument to a program
+  is lost: `git commit -m @'…"x"…'@` commits `x` unquoted, or fails when the
+  quotes split the message. Write the message to a file and use
+  `git commit -F <file>` (or a Bash heredoc), and the same for `gh pr create
+  --body-file`.
 
 ## Plugins and skills (kept by the weekly scout)
 
