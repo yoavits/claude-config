@@ -89,7 +89,8 @@ Don't wait for that session: install the npm package puppeteer-core in a folder 
 path (Chrome won't start from a working directory past Windows' path limit, which
 the scratchpad's is) and `launch({ executablePath: <the installed chrome.exe>,
 headless: true, userDataDir: <a new temp folder> })`; `page.setViewport` sets
-a phone width.
+a phone width. Save screenshots inside your working directory, not that folder: a
+session may be allowed to read only its own folders.
 
 ## Working style
 
