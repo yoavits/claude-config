@@ -83,6 +83,14 @@ will not make a window narrower than about 500px, so chrome-devtools'
 with `viewport: "360x700x2"` (add `,mobile,touch` only on a page with a viewport
 meta tag), and read `innerWidth` back to confirm.
 
+**chrome-devtools keeps one Chrome profile for every session on the machine**,
+so while another session has it open you get "The browser is already running".
+Don't wait for that session: install the npm package puppeteer-core in a folder with a short
+path (Chrome won't start from a working directory past Windows' path limit, which
+the scratchpad's is) and `launch({ executablePath: <the installed chrome.exe>,
+headless: true, userDataDir: <a new temp folder> })`; `page.setViewport` sets
+a phone width.
+
 ## Working style
 
 - Open a file with Read (or `cat`/`head` on that one file) before changing it:
