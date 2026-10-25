@@ -77,6 +77,12 @@ lock), never by the exit code of the command that killed it. `lsof -ti :<port>`
 finds the pid; cloud containers have no `ss`, and an empty pid from a missing
 tool looks the same as a free port.
 
+**Check a phone width by emulating it, not by resizing the window.** Chrome
+will not make a window narrower than about 500px, so chrome-devtools'
+`resize_page` to 360 leaves `innerWidth` at 500 with no error. Use `emulate`
+with `viewport: "360x700x2"` (add `,mobile,touch` only on a page with a viewport
+meta tag), and read `innerWidth` back to confirm.
+
 ## Working style
 
 - Open a file with Read (or `cat`/`head` on that one file) before changing it:
