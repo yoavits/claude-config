@@ -133,9 +133,9 @@ Each swap is listed here, newest first; the full log is
 `~/.claude/scheduled-tasks/claude-plugin-skill-scout/changes.md`. An item
 removed below is gone, even if an older report or memory still names it.
 
-- 2026-10-25 (owner asked, aiming at result quality over tokens): uninstalled
+- 2026-10-25 (owner asked, aiming at the best results per token): uninstalled
   `session-report` (it does not change output; don't reinstall). Locally the
-  model is now `opus` at effort `high`, cap `xhigh` (was `opusplan`).
+  model is now `opus` at effort `medium`, cap `xhigh` (was `opusplan`).
 
 - 2026-10-25 (owner asked to apply that day's report): installed
   `session-report`, `claude-md-management`, `typescript-lsp` (official, user
