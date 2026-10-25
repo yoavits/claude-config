@@ -85,7 +85,7 @@ meta tag), and read `innerWidth` back to confirm.
 
 **chrome-devtools keeps one Chrome profile for every session on the machine**,
 so while another session has it open you get "The browser is already running".
-Don't wait for that session: install `puppeteer-core` in a folder with a short
+Don't wait for that session: install the npm package puppeteer-core in a folder with a short
 path (Chrome won't start from a working directory past Windows' path limit, which
 the scratchpad's is) and `launch({ executablePath: <the installed chrome.exe>,
 headless: true, userDataDir: <a new temp folder> })`; `page.setViewport` sets
