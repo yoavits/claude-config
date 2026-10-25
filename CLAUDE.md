@@ -20,3 +20,9 @@ as `~/.claude/CLAUDE.md`; **this** file is only about working on the repo itself
   three. Break the thing on purpose and watch the test fail before trusting a
   new test.
 - `npm test` before every push; CI runs it on Linux, macOS and Windows.
+- **The local clone (`~/claude-config`) stays on `main`.** The self-update
+  (`scripts/self-update.sh`) pulls whatever branch it is on, so a clone left on
+  a feature branch never installs what is merged (two merged notes went uninstalled,
+  2026-10-25). Work in a worktree: `git -C ~/claude-config worktree add
+  -b <branch> <dir> origin/main`. After a merge, `bash install.sh` from the
+  clone applies it at once.
