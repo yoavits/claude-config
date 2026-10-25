@@ -128,6 +128,10 @@ tool looks the same as a free port.
   quotes split the message. Write the message to a file and use
   `git commit -F <file>` (or a Bash heredoc), and the same for `gh pr create
   --body-file`.
+- **On Windows, Python writes CRLF**: `open(p, 'w')` and `Path.write_text`
+  turn every `\n` into `\r\n`, so a script that edits a file in an LF repo
+  rewrites every line. Edit with the Edit tool, or pass `newline=''` (and
+  `newline='\n'` to `write_text` on Python 3.10+).
 
 ## Plugins and skills (kept by the weekly scout)
 
