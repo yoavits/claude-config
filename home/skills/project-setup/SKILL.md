@@ -1,6 +1,6 @@
 ---
 name: project-setup
-description: Make any repository ready for fresh Claude sessions to work in at full strength. Use on the first session in a repo that has no CLAUDE.md (the prompt reminder says so), when its CLAUDE.md does not say how to run the tests, or when asked to "set up Claude for this project", "onboard Claude", or make Claude work as well here as elsewhere. Builds a project CLAUDE.md from the repo itself, makes the full test suite runnable in a cloud container through a SessionStart hook, adds path-scoped rules for the risky areas, and records where decisions live.
+description: Make any repository ready for fresh Claude sessions to work in at full strength. Use on the first session in a repo that has no CLAUDE.md, when its CLAUDE.md does not say how to run the tests, or when asked to "set up Claude for this project", "onboard Claude", or make Claude work as well here as elsewhere. Builds a project CLAUDE.md from the repo itself, makes the full test suite runnable in a cloud container through a SessionStart hook, adds path-scoped rules for the risky areas, and records where decisions live.
 ---
 
 # Project setup — what a project needs so a fresh session starts at full strength

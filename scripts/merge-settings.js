@@ -7,7 +7,9 @@
  *
  * An event may carry a tool matcher after a colon: `PostToolUse:Bash`. The
  * pseudo-event `permissions.ask` adds a permission rule to the ask list
- * instead, once; the user's own rules are kept.
+ * instead, once; the user's own rules are kept. The pseudo-event
+ * `unhook:<event>` removes the entry an earlier install added on that event
+ * (found by the script name it runs); the user's own hooks are kept.
  *
  * Idempotent: each of our entries is found by the script name it runs and
  * replaced in place, so a second install never adds a second copy. Every other
@@ -62,7 +64,17 @@ function removeAsk(settings, rule) {
     return out;
 }
 
-module.exports = { merge, addAsk, removeAsk, MARKERS };
+// Remove a hook an earlier install added (found by the script it runs); the user's own hooks stay.
+function unhook(settings, event, marker) {
+    const out = settings && typeof settings === 'object' ? settings : {};
+    const entries = out.hooks && Array.isArray(out.hooks[event]) ? out.hooks[event] : null;
+    if (!entries) return out;
+    out.hooks[event] = entries.filter((e) => !(Array.isArray(e && e.hooks) && e.hooks.some((h) => String(h.command || '').includes(marker))));
+    if (out.hooks[event].length === 0) delete out.hooks[event];
+    return out;
+}
+
+module.exports = { merge, addAsk, removeAsk, unhook, MARKERS };
 
 if (require.main === module) {
     const [file, ...pairs] = process.argv.slice(2);
@@ -89,6 +101,10 @@ if (require.main === module) {
         }
         if (pairs[i] === 'permissions.unask') {
             current = removeAsk(current, pairs[i + 1]);
+            continue;
+        }
+        if (pairs[i].startsWith('unhook:')) {
+            current = unhook(current, pairs[i].slice('unhook:'.length), pairs[i + 1]);
             continue;
         }
         // The self-update fetches over the network: give it longer.

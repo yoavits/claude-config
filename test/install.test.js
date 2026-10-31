@@ -40,11 +40,10 @@ test('installs CLAUDE.md, every skill, the hook and its settings', () => {
     const expected = [...skillsIn(path.join(ROOT, '.agents', 'skills')), ...skillsIn(path.join(ROOT, 'home', 'skills'))];
     assert.ok(expected.length >= 11, `only ${expected.length} skills in the repo`);
     for (const s of expected) assert.ok(fs.existsSync(path.join(dest, 'skills', s, 'SKILL.md')), `${s} not installed`);
-    assert.ok(fs.existsSync(path.join(dest, 'hooks', 'prompt-reminder.js')));
+    assert.ok(!fs.existsSync(path.join(dest, 'hooks', 'prompt-reminder.js')));
     assert.ok(fs.existsSync(path.join(dest, 'hooks', 'push-reminder.js')));
     const settings = JSON.parse(fs.readFileSync(path.join(dest, 'settings.json'), 'utf8'));
-    const cmds = settings.hooks.UserPromptSubmit.flatMap((e) => e.hooks.map((h) => h.command));
-    assert.deepEqual(cmds, ['node "$HOME/.claude/hooks/prompt-reminder.js"']);
+    assert.equal(settings.hooks.UserPromptSubmit, undefined);
     const post = settings.hooks.PostToolUse;
     assert.deepEqual(
         post.map((e) => [e.matcher, e.hooks.map((h) => h.command)]),
@@ -97,9 +96,33 @@ test('keeps the user’s own settings, hooks, skills and CLAUDE.md', () => {
     assert.deepEqual(settings.permissions.allow, ['Bash(ls *)'], 'their allow rules changed');
     assert.equal(settings.hooks.PostToolUse[0].hooks[0].command, 'prettier');
     const cmds = settings.hooks.UserPromptSubmit.flatMap((e) => e.hooks.map((h) => h.command));
-    assert.deepEqual(cmds, ['echo mine', 'node "$HOME/.claude/hooks/prompt-reminder.js"']);
+    assert.deepEqual(cmds, ['echo mine']);
     assert.ok(fs.existsSync(path.join(dest, 'skills', 'my-own-skill', 'SKILL.md')), 'a skill of theirs was removed');
     assert.equal(fs.readFileSync(path.join(dest, 'CLAUDE.md.before-claude-config'), 'utf8'), '# my notes\n');
+});
+
+test('the prompt reminder is gone: an earlier install’s hook and script are removed, the user’s own kept', () => {
+    // The owner found it noise on every prompt (2026-10-31).
+    const home = scratch();
+    const dest = path.join(home, '.claude');
+    fs.mkdirSync(path.join(dest, 'hooks'), { recursive: true });
+    fs.writeFileSync(path.join(dest, 'hooks', 'prompt-reminder.js'), '// old\n');
+    fs.writeFileSync(
+        path.join(dest, 'settings.json'),
+        JSON.stringify({
+            hooks: {
+                UserPromptSubmit: [
+                    { hooks: [{ type: 'command', command: 'echo mine' }] },
+                    { hooks: [{ type: 'command', command: 'node "$HOME/.claude/hooks/prompt-reminder.js"', timeout: 10 }] }
+                ]
+            }
+        })
+    );
+    install(home);
+    const settings = JSON.parse(fs.readFileSync(path.join(dest, 'settings.json'), 'utf8'));
+    const cmds = settings.hooks.UserPromptSubmit.flatMap((e) => e.hooks.map((h) => h.command));
+    assert.deepEqual(cmds, ['echo mine']);
+    assert.ok(!fs.existsSync(path.join(dest, 'hooks', 'prompt-reminder.js')));
 });
 
 test('a second install changes nothing', () => {
@@ -131,7 +154,7 @@ test('honours CLAUDE_CONFIG_DIR, with an absolute hook path', () => {
     const custom = path.join(home, 'elsewhere');
     install(home, { CLAUDE_CONFIG_DIR: custom });
     const settings = JSON.parse(fs.readFileSync(path.join(custom, 'settings.json'), 'utf8'));
-    assert.equal(settings.hooks.UserPromptSubmit[0].hooks[0].command, `node "${custom}/hooks/prompt-reminder.js"`);
+    assert.equal(settings.hooks.PostToolUse[0].hooks[0].command, `node "${custom}/hooks/push-reminder.js"`);
     assert.ok(!fs.existsSync(path.join(home, '.claude')));
 });
 

@@ -13,8 +13,8 @@ as `~/.claude/CLAUDE.md`; **this** file is only about working on the repo itself
   `home/CLAUDE.md`. An edited vendored skill is silently overwritten on the next
   update.
 - `home/CLAUDE.md` loads in every session of every project, so keep it short.
-  The tests cap it at 200 lines and check that every skill it or the reminder
-  names is shipped.
+  The tests cap it at 200 lines and check that every skill it names is
+  shipped (test/claude-md.test.js).
 - The installer must never destroy the user's own settings, hooks, skills or
   CLAUDE.md, and a re-run must change nothing. `test/install.test.js` checks all
   three. Break the thing on purpose and watch the test fail before trusting a

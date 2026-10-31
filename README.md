@@ -11,7 +11,6 @@ a session opens.
 | `home/skills/claude-capabilities` | `~/.claude/skills/` | A map of everything Claude Code can do and which tool, mode and effort fits a task |
 | `home/skills/project-setup` | `~/.claude/skills/` | Makes any repo ready for fresh sessions: a verified project CLAUDE.md, tests that run in the cloud container, rules for risky areas |
 | `home/skills/trial-loop` | `~/.claude/skills/` | Measures a project with fresh trial sessions, verifies what they hit, fixes it, reruns until clean |
-| `home/hooks/prompt-reminder.js` | `~/.claude/hooks/` + `settings.json` | Restates *Before starting a task* on every prompt (and, in a repo with no CLAUDE.md, says to run `project-setup`); silent on system notifications |
 | `home/hooks/push-reminder.js` | `~/.claude/hooks/` + `settings.json` | After a `git push`, says to check CI on the pushed branch |
 | `scripts/self-update.sh` | `settings.json` (SessionStart) | Pulls this repo at each session start and re-installs when it moved, so a pushed change reaches the next session |
 
@@ -51,7 +50,8 @@ session start, so changes pushed here arrive without editing the script again.
   once as `CLAUDE.md.before-claude-config`.
 - Each shipped skill folder is replaced. Skills of yours with other names are
   left alone. A user-level skill shadows a project skill of the same name.
-- `settings.json` gets the reminder hook merged in. Every other setting and hook
+- `settings.json` gets the push-reminder and self-update hooks merged in, and the
+  prompt reminder an earlier install added is removed. Every other setting and hook
   is kept, a re-run never adds a second copy, and a file that does not parse is
   refused rather than overwritten.
 - `CLAUDE_CONFIG_DIR` is honoured if set.

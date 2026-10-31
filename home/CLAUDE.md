@@ -7,8 +7,7 @@ next install overwrites it.
 
 ## Before starting a task
 
-**A repo with no project CLAUDE.md gets `project-setup` first** (the reminder
-says so): it writes down, from the repo and verified, what this file cannot know
+**A repo with no project CLAUDE.md gets `project-setup` first**: it writes down, from the repo and verified, what this file cannot know
 (the commands, how the tests run here, what never to hand-edit, where decisions
 live). Asked to rate or improve how Claude works in a project, use `trial-loop`.
 
@@ -57,10 +56,10 @@ live). Asked to rate or improve how Claude works in a project, use `trial-loop`.
    opt-in.
 
 **Step 0 always runs. A small change with a known shape skips 1–3**: a typo, a
-copy tweak, a one-line fix, a plain question. The `prompt-reminder` hook
-restates this on every prompt, and stays silent on system notifications and
-task reports. A task another session sends you is a task, so it gets the
-reminder.
+copy tweak, a one-line fix, a plain question. A task another session sends
+you is a task, so it gets these steps too. (The `prompt-reminder` hook that
+restated this on every prompt was removed at the owner's request, 2026-10-31;
+don't bring it back.)
 
 ## Verification
 

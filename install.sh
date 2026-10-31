@@ -14,10 +14,10 @@
 #   skills/<name>/             every skill in .agents/skills and home/skills (replaced per skill;
 #                              skills of yours with other names are left alone; the vendored
 #                              superpowers skills are skipped while that plugin is enabled)
-#   hooks/prompt-reminder.js   the UserPromptSubmit reminder
 #   hooks/push-reminder.js     the PostToolUse reminder to check CI after a push
-#   settings.json              the reminder, push and self-update hooks merged in; the Firecrawl ask
-#                              rules an earlier install added are removed; every other setting kept
+#   settings.json              the push and self-update hooks merged in; the prompt reminder and the
+#                              Firecrawl ask rules an earlier install added are removed; every other
+#                              setting kept
 #
 # Idempotent: run it again to update. It needs node (Claude Code needs it anyway).
 set -euo pipefail
@@ -59,26 +59,25 @@ for dir in "$SRC"/.agents/skills/*/ "$SRC"/home/skills/*/; do
   count=$((count + 1))
 done
 
-cp "$SRC/home/hooks/prompt-reminder.js" "$DEST/hooks/prompt-reminder.js"
+# The reminder on every prompt was noise (owner, 2026-10-31): an earlier install's copy goes.
+rm -f "$DEST/hooks/prompt-reminder.js"
 cp "$SRC/home/hooks/push-reminder.js" "$DEST/hooks/push-reminder.js"
 
 # $HOME stays literal in the default case so the same settings work from any
 # shell, including Git Bash on Windows, which converts the path for node.
 if [ "$DEST" = "$HOME/.claude" ]; then
-  HOOK_CMD='node "$HOME/.claude/hooks/prompt-reminder.js"'
   PUSH_CMD='node "$HOME/.claude/hooks/push-reminder.js"'
 else
-  HOOK_CMD="node \"$DEST/hooks/prompt-reminder.js\""
   PUSH_CMD="node \"$DEST/hooks/push-reminder.js\""
 fi
 # The self-update runs from this clone, wherever it is (~/claude-config locally,
 # /tmp/claude-config in the cloud), so a session pulls the repo it came from.
 UPDATE_CMD="bash \"$SRC/scripts/self-update.sh\""
 node "$SRC/scripts/merge-settings.js" "$DEST/settings.json" \
-  UserPromptSubmit "$HOOK_CMD" \
+  unhook:UserPromptSubmit prompt-reminder.js \
   PostToolUse:Bash "$PUSH_CMD" \
   SessionStart "$UPDATE_CMD" \
   permissions.unask 'mcp__Firecrawl__*' \
   permissions.unask 'mcp__firecrawl__*'
 
-log "installed into $DEST: CLAUDE.md, $count skills, prompt and push reminder hooks"
+log "installed into $DEST: CLAUDE.md, $count skills, the push reminder hook"
