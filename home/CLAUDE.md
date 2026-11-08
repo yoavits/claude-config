@@ -156,6 +156,13 @@ Each swap is listed here, newest first; the full log is
 `~/.claude/scheduled-tasks/claude-plugin-skill-scout/changes.md`. An item
 removed below is gone, even if an older report or memory still names it.
 
+- 2026-11-08 (owner asked to apply that day's report): superpowers now comes
+  from `superpowers@superpowers-marketplace` (7.0.2; the official pin lagged at
+  7.0.0) and chrome-devtools-mcp from `chrome-devtools-mcp@chrome-devtools-plugins`
+  (1.12.0, marketplace pinned to the v1.12.0 tag). Both are the same authors'
+  plugins. Installed `project-artifact` (official). impeccable is 4.8.1, with
+  its telemetry off. Undo: `claude plugin install <name>@claude-plugins-official`,
+  then uninstall the new one.
 - 2026-10-25 (owner asked, aiming at the best results per token): uninstalled
   `session-report` (it does not change output; don't reinstall). Locally the
   model is now `opus` at effort `medium`, cap `xhigh` (was `opusplan`).
